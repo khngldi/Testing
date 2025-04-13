@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Добавить биометрический ключ (FaceID, отпечаток)</h2>
+
+<button id="register-button">Зарегистрировать ключ</button>
+
+<p id="message"></p>
+
+<script>
+function base64urlToBase64(base64url) {
+    let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4 !== 0) {
+        base64 += '=';
+    }
+    return base64;
+}
+document.getElementById("register-button").addEventListener("click", async () => {
+    try {
+        const startResponse = await fetch("{% url 'start_fido' %}");
+        const json = await startResponse.json();
+        const options = json.publicKey;
+
+        // Декодируем challenge и user.id
+        options.challenge = Uint8Array.from(atob(base64urlToBase64(options.challenge)), c => c.charCodeAt(0));
+        options.user.id = Uint8Array.from(atob(base64urlToBase64(options.user.id)), c => c.charCodeAt(0));
+
+        if (options.excludeCredentials) {
+            options.excludeCredentials = options.excludeCredentials.map(cred => ({
+                ...cred,
+                id: Uint8Array.from(atob(base64urlToBase64(cred.id)), c => c.charCodeAt(0))
+            }));
+        }
+
+        const cred = await navigator.credentials.create({ publicKey: options });
+
+        const credential = {
+            id: cred.id,
+            rawId: btoa(String.fromCharCode(...new Uint8Array(cred.rawId))),
+            type: cred.type,
+            response: {
+                attestationObject: btoa(String.fromCharCode(...new Uint8Array(cred.response.attestationObject))),
+                clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(cred.response.clientDataJSON)))
+            }
+        };
+
+        const completeResponse = await fetch("{% url 'complete_fido' %}", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(credential)
+        });
+
+        const result = await completeResponse.json();
+        document.getElementById("message").innerText = result.message || "Ключ успешно зарегистрирован!";
+    } catch (err) {
+        console.error(err);
+        document.getElementById("message").innerText = "Ошибка регистрации ключа.";
+    }
+});
+</script>
+{% endblock %}

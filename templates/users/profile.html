@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3>Профиль</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="{{ user.profile_picture.url }}" class="rounded-circle" width="150" height="150" alt="Profile Picture">
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ user_form|crispy }}
+                    {{ profile_form|crispy }}
+                    <button type="submit"
+                            class="btn btn-success"
+                            style="background-color: #00a503; color: white; border: none;"
+                    >Изменить</button>
+                    <a href="{% url 'register_fido_key' %}" class="btn btn-outline-secondary">
+                        Добавить FaceID / биометрию
+                    </a>
+                    <a href="{% url 'change_password' %}" class="btn btn-secondary">Изменить пароль</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

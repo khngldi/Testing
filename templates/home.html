@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto text-center">
+            <h1>Добро пожаловать в Freshmart</h1>
+            <p class="lead">Ваш универсальный магазин свежих продуктов</p>
+            {% if user.is_authenticated %}
+                <p>Здравствуйте, {{ user.username }}!</p>
+<a href="{% url 'products:product_list' %}"
+   class="btn btn-success"
+   style="background-color: #00a503; color: white; border: none;
+          transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">
+   Просмотреть продукты
+</a>                {% if user.role == 'seller' %}
+<a href="{% url 'products:seller_dashboard' %}"
+   class="btn btn-outline-success"
+   style="border-color: #00a503; color: #00a503;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+   onmouseover="this.style.backgroundColor='#00a503'; this.style.color='white'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
+   onmouseout="this.style.backgroundColor='transparent'; this.style.color='#00a503'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">
+   Панель управления продавца
+</a>                {% endif %}
+            {% else %}
+                <div class="d-grid gap-2 d-md-block">
+                    <a href="{% url 'login' %}" class="btn btn-success"
+                       style="background-color: #00a503; color: white; border: none;
+          transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'"
+                    >Авторизоваться</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-success"
+                    style="background-color: #00a503; color: white; border: none;
+          transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
+   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'"
+                    >Зарегистрироваться</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
