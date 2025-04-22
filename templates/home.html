@@ -1,47 +1,114 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 mx-auto text-center">
-            <h1>Добро пожаловать в Freshmart</h1>
-            <p class="lead">Ваш универсальный магазин свежих продуктов</p>
-            {% if user.is_authenticated %}
-                <p>Здравствуйте, {{ user.username }}!</p>
-<a href="{% url 'products:product_list' %}"
-   class="btn btn-success"
-   style="background-color: #00a503; color: white; border: none;
-          transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
-   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">
-   Просмотреть продукты
-</a>                {% if user.role == 'seller' %}
-<a href="{% url 'products:seller_dashboard' %}"
-   class="btn btn-outline-success"
-   style="border-color: #00a503; color: #00a503;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-   onmouseover="this.style.backgroundColor='#00a503'; this.style.color='white'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
-   onmouseout="this.style.backgroundColor='transparent'; this.style.color='#00a503'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">
-   Панель управления продавца
-</a>                {% endif %}
-            {% else %}
-                <div class="d-grid gap-2 d-md-block">
-                    <a href="{% url 'login' %}" class="btn btn-success"
-                       style="background-color: #00a503; color: white; border: none;
-          transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
-   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'"
-                    >Авторизоваться</a>
-                    <a href="{% url 'register' %}" class="btn btn-outline-success"
-                    style="background-color: #00a503; color: white; border: none;
-          transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
-   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'"
-                    >Зарегистрироваться</a>
+<div class="container mt-4">
+    <div id="carouselFreshmart" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+
+            <!-- Слайд 1: Общий -->
+            <div class="carousel-item active">
+                <img src="{% static 'images/FreshBackround.jpg' %}" class="d-block w-100 carousel-img" alt="Главный фон">
+                <div class="carousel-caption d-none d-md-block position-absolute top-50 start-50 translate-middle text-center">
+                    <h2 class="text-white">Добро пожаловать в Freshmart</h2>
+                    <p class="text-white">Ваш универсальный магазин свежих продуктов</p>
+                    {% if user.is_authenticated %}
+                        <p class="text-white">Здравствуйте, {{ user.username }}!</p>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-success me-2">Авторизоваться</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-light">Зарегистрироваться</a>
+                    {% endif %}
                 </div>
+            </div>
+
+            {% if not user.is_authenticated %}
+            <!-- Слайды для неавторизованных -->
+            <div class="carousel-item">
+                <img src="{% static 'images/FreshBackround2.jpg' %}" class="d-block w-100 carousel-img" alt="Инфо 1">
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'images/FreshBackround32.png' %}" class="d-block w-100 carousel-img" alt="Инфо 2">
+            </div>
+            {% elif user.role == 'customer' %}
+            <!-- Слайд для клиента -->
+            <div class="carousel-item">
+                <img src="{% static 'images/FreshBackround23.jpg' %}" class="d-block w-100 carousel-img" alt="Клиент Инфо">
+            </div>
+            {% elif user.role == 'seller' %}
+            <!-- Слайд для продавца -->
+            <div class="carousel-item">
+                <img src="{% static 'images/FreshBackround3.jpg' %}" class="d-block w-100 carousel-img" alt="Продавец Инфо">
+            </div>
             {% endif %}
+        </div>
+
+        <!-- Кнопки навигации -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselFreshmart" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Назад</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselFreshmart" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Вперёд</span>
+        </button>
+    </div>
+</div>
+<!-- Колонки о сайте -->
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-3 mb-4">
+            <div class="p-4 border rounded shadow-sm h-100 bg-light">
+                <i class="bi bi-grid-fill fs-1 text-success mb-3"></i>
+                <h5>Категории товаров</h5>
+                <p>Тысячи товаров, удобно отсортированных по категориям для быстрого выбора.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="p-4 border rounded shadow-sm h-100 bg-light">
+                <i class="bi bi-search fs-1 text-success mb-3"></i>
+                <h5>Поиск и фильтры</h5>
+                <p>Умный поиск и фильтры помогут найти нужное за секунды.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="p-4 border rounded shadow-sm h-100 bg-light">
+                <i class="bi bi-robot fs-1 text-success mb-3"></i>
+                <h5>AI-ассистент</h5>
+                <p>Умный помощник ответит на вопросы и подскажет нужный товар.</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="p-4 border rounded shadow-sm h-100 bg-light">
+                <i class="bi bi-chat-dots fs-1 text-success mb-3"></i>
+                <h5>Общение с продавцами</h5>
+                <p>Пишите напрямую продавцам, задавайте вопросы и уточняйте детали.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center text-center mt-4">
+        <div class="col-md-6">
+            <div class="p-4 border rounded shadow-sm h-100 bg-light">
+                <i class="bi bi-star-fill fs-1 text-warning mb-3"></i>
+                <h5>Отзывы и рейтинги</h5>
+                <p>Читайте мнения других пользователей и выбирайте лучшее с уверенностью.</p>
+            </div>
         </div>
     </div>
 </div>
+<style>
+.carousel-img {
+    width: 100%;
+    max-width: 1272px;
+    height: 984px;
+    object-fit: contain;
+    margin: 0 auto;
+    margin-top: -150px;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.carousel-img:hover {
+    transform: scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+</style>
 {% endblock %}
