@@ -1,3 +1,5 @@
+import random
+from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -17,6 +19,8 @@ from mfa.FIDO2 import begin_registeration, complete_reg, getServer, getUserCrede
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from fido2.utils import websafe_encode
+from django.utils.crypto import get_random_string
+from .models import PasswordResetRequest
 
 def register(request):
     if request.method == 'POST':
@@ -111,7 +115,72 @@ def reject_seller(request, user_id):
     user.delete()
     return HttpResponse(f'Пользователь {user.username} был отклонён и удалён.')
 
+def password_reset_request(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user = CustomUser.objects.filter(email=email).first()
 
+        if user:
+            confirm_url = f"http://127.0.0.1:8000/users/admin-confirm-reset/{user.id}/"
+            html_message = render_to_string('users/reset_request_email.html', {
+                'user': user,
+                'confirm_url': confirm_url,
+            })
+
+            send_mail(
+                subject='Запрос на сброс пароля',
+                message='Ваш почтовый клиент не поддерживает HTML.',
+                html_message=html_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['khanekshakh@gmail.com'],  # email админа
+            )
+            messages.success(request, 'Запрос на сброс пароля отправлен администратору.')
+        else:
+            messages.error(request, 'Пользователь с таким email не найден.')
+        return redirect('login')
+
+    return render(request, 'users/password_reset_form.html')
+
+
+def admin_confirm_reset(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    new_password = str(random.randint(100000, 999999))  # 6-значный
+
+    user.set_password(new_password)
+    user.save()
+
+    send_mail(
+        subject='Ваш новый пароль',
+        message=f'Ваш пароль был сброшен администратором. Новый пароль: {new_password}',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+    )
+
+    return HttpResponse(f'Пароль для {user.email} успешно сброшен и отправлен.')
+
+def approve_reset_request(request, reset_id):
+    reset_request = get_object_or_404(PasswordResetRequest, id=reset_id, is_used=False)
+    user = reset_request.user
+
+    new_password = get_random_string(length=6, allowed_chars='0123456789')
+
+    user.set_password(new_password)
+    user.save()
+
+    reset_request.is_used = True
+    reset_request.save()
+
+    send_mail(
+        subject='Сброс пароля на Freshmart',
+        message=f'Здравствуйте, {user.username}!\n\nВаш новый пароль: {new_password}',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
+    return HttpResponse("Пароль успешно сброшен и отправлен пользователю на почту.")
+
+#MFA
 def register_fido_key(request):
     return render(request, 'users/register_fido.html')
 
@@ -124,7 +193,6 @@ def start_fido(request):
 @csrf_exempt
 def complete_fido(request):
     return complete_reg(request)
-
 
 def begin_registeration(request):
     server = getServer()

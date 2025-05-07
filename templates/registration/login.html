@@ -14,9 +14,9 @@
                     {{ form|crispy }}
                     <button type="submit" class="btn btn-success" style="background-color: #00a503; color: white; border: none;
           transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-   onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
-   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">Авторизоваться</button>
-                    <a href="{% url 'password_reset' %}" class="btn btn-link">Забыли пароль?</a>
+                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.2)'"
+                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)'">Авторизоваться</button>
+                    <a href="{% url 'password_reset_request' %}" class="btn btn-link">Забыли пароль?</a>
                 </form>
                 <hr>
                 <p class="text-center">У вас нет учетной записи?

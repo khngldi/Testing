@@ -1,9 +1,19 @@
+from django.core.mail import send_mail
+from django.db.models import Count
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Product, Like
 from .forms import ProductForm
 
+def home(request):
+    popular_products = Product.objects.annotate(
+        like_count=Count('like')
+    ).order_by('-like_count')[:6]
+    return render(request, 'home.html', {
+        'popular_products': popular_products
+    })
 
 @login_required
 def product_list(request):
@@ -101,3 +111,40 @@ def delete_product(request, pk):
         return redirect('products:seller_dashboard')
 
     return render(request, 'products/delete_product.html', {'product': product})
+
+def about_view(request):
+    return render(request, 'about.html')
+
+def contact_view(request):
+    # Проверка, что пользователь авторизован
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            message = request.POST.get('message')
+
+            send_mail(
+                subject=f"📩 Freshmart | Новое сообщение от {request.user.username}",
+                message=f"""
+            Здравствуйте!
+
+            Вы получили новое сообщение через форму обратной связи на сайте Freshmart.
+
+            👤 Пользователь: {request.user.username}
+            📧 Email: {request.user.email}
+
+            💬 Сообщение:
+            {message.strip()}
+
+            ────────────────────────────
+            С уважением, команда Freshmart
+            freshmart.kz
+            """,
+                from_email=request.user.email,
+                recipient_list=['khanekshakh@gmail.com'],
+            )
+
+            messages.success(request, "Сообщение успешно отправлено!")
+        else:
+            messages.error(request, "Вы должны быть авторизованы для отправки сообщения.")
+
+    return render(request, 'contact.html')
+

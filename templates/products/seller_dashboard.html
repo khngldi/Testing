@@ -32,7 +32,7 @@
                 <tr>
                     <td><img src="{{ product.image.url }}" width="50" height="50" style="object-fit: cover;"></td>
                     <td>{{ product.name }}</td>
-                    <td>${{ product.price|intcomma }}</td>
+                    <td>{{ product.price|intcomma }} тг</td>
                     <td>{{ product.like_set.count }}</td>
                     <td>
                         <a href="{% url 'products:product_detail' product.pk %}" class="btn btn-sm btn-success" style="background-color: #00a503; color: white; border: none;">Посмотреть</a>

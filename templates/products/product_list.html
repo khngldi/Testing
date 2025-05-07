@@ -23,7 +23,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">{{ product.description|truncatechars:50 }}</p>
-                        <p class="fw-bold">${{ product.price|intcomma }}</p>
+                        <p class="fw-bold">{{ product.price|intcomma }} тг</p>
                         <a href="{% url 'products:product_detail' product.pk %}"
                            class="btn btn-success"
                            style="background-color: #00a503; color: white; border: none;
