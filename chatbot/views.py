@@ -2,12 +2,14 @@ import json
 import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from Freshmart.settings import GEMINI_API_KEY
-import google.generativeai as genai
+from django.conf import settings
+import openai
 from products.models import Product
 
 logger = logging.getLogger(__name__)
-genai.configure(api_key=GEMINI_API_KEY)
+
+openai.api_key = settings.DEEPSEEK_API_KEY
+openai.base_url = "https://api.deepseek.com/v1"  # замени, если другой URL
 
 @csrf_exempt
 def chat_api(request):
@@ -38,12 +40,21 @@ def chat_api(request):
                                f"- Цена: {product.price}$\n" \
                                f"- Дата добавления: {product.created_at.strftime('%d-%m-%Y')}"
             else:
-                model = genai.GenerativeModel(
-                    "models/gemini-1.5-pro-latest",
-                    system_instruction="Ты — вежливый и полезный ассистент Freshmart. Помогаешь покупателям с товарами, акциями и заказами."
+                client = openai.OpenAI(
+                    api_key=settings.DEEPSEEK_API_KEY,
+                    base_url="https://api.deepseek.com/v1"
                 )
-                response = model.generate_content(user_message)
-                bot_response = response.text
+
+                response = client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=[
+                        {"role": "system",
+                         "content": "Ты — вежливый и полезный ассистент Freshmart. Помогаешь покупателям с товарами, акциями и заказами."},
+                        {"role": "user", "content": user_message}
+                    ]
+                )
+
+                bot_response = response.choices[0].message.content
 
             logger.info(f"Bot response: {bot_response}")
             return JsonResponse({'response': bot_response})
